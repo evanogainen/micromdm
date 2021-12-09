@@ -102,6 +102,13 @@ func (w *Worker) Run(ctx context.Context) error {
 			return ctx.Err()
 		case ev := <-ackEvents:
 			event, err = acknowledgeEvent(ev.Topic, ev.Message)
+			s := strings.Split(event.AcknowledgeEvent.Params["instance"], ":")
+			w.url = strings.Replace(w.url, "$(instance)", s[0], 1)
+			w.url = strings.Replace(w.url, "$(userid)", s[1], 1)
+			level.Info(w.logger).Log(
+				"msg", "webhook url",
+				"err", w.url,
+			)
 		case ev := <-authenticateEvents: 
 		{
 			event, err = checkinEvent(ev.Topic, ev.Message)
